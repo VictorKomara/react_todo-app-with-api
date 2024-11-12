@@ -1,8 +1,7 @@
-/* eslint-disable jsx-a11y/label-has-associated-control */
-import classNames from 'classnames';
-import { Todo } from '../types/Todo';
 import { useState } from 'react';
-import { FormEditingTitle } from './FormEditingTitle';
+import { Todo } from '../types/Todo';
+import { TempTodoItem } from './TempTodoItem';
+import { TodoItem } from './TodoItem';
 
 type Props = {
   visibleTodos: Todo[];
@@ -54,111 +53,28 @@ export const TodoList: React.FC<Props> = ({
   return (
     <section className="todoapp__main" data-cy="TodoList">
       {visibleTodos.map(todo => {
-        const { id, completed, title } = todo;
-
         return (
-          <div
-            data-cy="Todo"
-            className={classNames('todo', { completed: completed })}
-            key={id}
-          >
-            <label className="todo__status-label">
-              <input
-                data-cy="TodoStatus"
-                type="checkbox"
-                className="todo__status"
-                checked={completed}
-                onClick={() => {
-                  changeTodo({ ...todo, completed: !completed });
-                  setUpdatingAndDeletingCompletedTodos([todo]);
-                }}
-              />
-            </label>
-
-            {editingTitle === id ? (
-              <FormEditingTitle
-                todo={todo}
-                titleEdit={titleEdit}
-                setTitleEdit={setTitleEdit}
-                handleChangeSubmit={handleChangeSubmit}
-                setEditingTitle={setEditingTitle}
-              />
-            ) : (
-              <>
-                <span
-                  data-cy="TodoTitle"
-                  className="todo__title"
-                  onDoubleClick={() => {
-                    setEditingTitle(id);
-                    setTitleEdit(title);
-                  }}
-                >
-                  {title}
-                </span>
-
-                <button
-                  type="button"
-                  className="todo__remove"
-                  data-cy="TodoDelete"
-                  onClick={() => deleteTodo(todo)}
-                >
-                  x
-                </button>
-              </>
-            )}
-
-            {/* overlay will cover the todo while it is being deleted or updated */}
-            <div
-              data-cy="TodoLoader"
-              className={classNames('modal', 'overlay', {
-                'is-active': updatingAndDeletingCompletedTodos?.some(
-                  task => task.id === todo.id,
-                ),
-              })}
-            >
-              <div
-                className={classNames(
-                  'modal-background',
-                  'has-background-white-ter',
-                )}
-              />
-              <div className="loader" />
-            </div>
-          </div>
+          <TodoItem
+            key={todo.id}
+            todo={todo}
+            changeTodo={changeTodo}
+            updatingAndDeletingCompletedTodos={
+              updatingAndDeletingCompletedTodos
+            }
+            setUpdatingAndDeletingCompletedTodos={
+              setUpdatingAndDeletingCompletedTodos
+            }
+            editingTitle={editingTitle}
+            setEditingTitle={setEditingTitle}
+            titleEdit={titleEdit}
+            setTitleEdit={setTitleEdit}
+            handleChangeSubmit={handleChangeSubmit}
+            deleteTodo={deleteTodo}
+          />
         );
       })}
 
-      {tempTodo && (
-        <div data-cy="Todo" className="todo">
-          <label className="todo__status-label">
-            <input
-              data-cy="TodoStatus"
-              type="checkbox"
-              className="todo__status"
-            />
-          </label>
-
-          <span data-cy="TodoTitle" className="todo__title">
-            {tempTodo}
-          </span>
-
-          {/* Remove button appears only on hover */}
-          <button type="button" className="todo__remove" data-cy="TodoDelete">
-            x
-          </button>
-
-          {/* overlay will cover the todo while it is being deleted or updated */}
-          <div data-cy="TodoLoader" className="modal overlay is-active">
-            <div
-              className={classNames(
-                'modal-background',
-                'has-background-white-ter',
-              )}
-            />
-            <div className="loader" />
-          </div>
-        </div>
-      )}
+      {tempTodo && <TempTodoItem tempTodo={tempTodo} />}
     </section>
   );
 };
